@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/SeonD/chesseon/db"
+	"github.com/SeonD/chesseon/handlers/games"
+	"github.com/SeonD/chesseon/handlers/moves"
 	"github.com/SeonD/chesseon/handlers/players"
 	"github.com/SeonD/chesseon/middlewares"
 	"github.com/gin-gonic/contrib/static"
@@ -24,6 +26,7 @@ func main() {
 
 	router.Use(middlewares.Connect)
 	router.Use(middlewares.ErrorHandler)
+	router.Use(middlewares.SetConstants)
 	router.Use(static.Serve("/", static.LocalFile("./views", true)))
 
 	api := router.Group("/api")
@@ -37,7 +40,19 @@ func main() {
 		player := api.Group("/players")
 		{
 			player.POST("/", players.Create)
-			player.GET("/:_id", players.GetById)
+			player.GET("/:_id", players.GetByID)
+		}
+
+		game := api.Group("/games")
+		{
+			game.POST("/", games.Create)
+			game.GET("/:_id/turn/:player_id", games.GetTurnByGameAndPlayerID)
+			game.GET("/:_id", games.GetByID)
+		}
+
+		move := api.Group("/moves")
+		{
+			move.POST("/:_id", moves.PlayMove)
 		}
 	}
 

@@ -20,6 +20,9 @@ func Create(c *gin.Context) {
 		return
 	}
 
+	player.ID = bson.NewObjectId()
+	player.PrivateKey = bson.NewObjectId()
+
 	err = db.C(models.CollectionPlayer).Insert(player)
 	if err != nil {
 		c.Error(err)
@@ -27,11 +30,13 @@ func Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"created": true,
+		"playerId":   player.ID,
+		"privateKey": player.PrivateKey,
 	})
 }
 
-func GetById(c *gin.Context) {
+// GetByID looks for a player by id
+func GetByID(c *gin.Context) {
 	db := c.MustGet("db").(*mgo.Database)
 	player := models.Player{}
 	oID := bson.ObjectIdHex(c.Param("_id"))

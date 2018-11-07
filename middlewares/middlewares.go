@@ -1,7 +1,10 @@
 package middlewares
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/SeonD/chesseon/db"
 	"github.com/gin-gonic/gin"
@@ -26,4 +29,22 @@ func ErrorHandler(c *gin.Context) {
 			"errors": c.Errors,
 		})
 	}
+}
+
+// SetConstants sets constant values
+func SetConstants(c *gin.Context) {
+	jsonFile, err := os.Open("board_setup.json")
+
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "500", gin.H{})
+	}
+
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	var Board map[string]string
+	json.Unmarshal([]byte(byteValue), &Board)
+
+	c.Set("boardSetup", Board)
+	c.Next()
 }
